@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Catálogo de Productos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #4cc9f0;
+            --gray: #6c757d;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+            font-size: 2rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #d9047c;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: #f1f3f5;
+        }
+
+        /* Secciones */
+        .section {
+            display: none;
+            padding: 2rem 0;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--secondary);
+            text-align: center;
+        }
+
+        /* Formulario de productos */
+        .product-form {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .image-upload {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .upload-box {
+            flex: 1;
+            min-width: 200px;
+            height: 200px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .upload-box:hover {
+            border-color: var(--primary);
+        }
+
+        .upload-box i {
+            font-size: 3rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .upload-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .price-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .price-row .form-group {
+            flex: 1;
+        }
+
+        /* Lista de productos */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+
+        .product-code {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .product-description {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .product-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .whatsapp-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .whatsapp-btn:hover {
+            background: #128C7E;
+        }
+
+        /* Vista de catálogo */
+        .catalog-view {
+            display: none;
+        }
+
+        .catalog-view.active {
+            display: block;
+        }
+
+        .back-button {
+            background: var(--gray);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2rem;
+        }
+
+        .back-button:hover {
+            background: #5a6268;
+        }
+
+        /* Galería de producto */
+        .product-gallery {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .image-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            padding: 0 15px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.7);
+            color: var(--dark);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .nav-btn:hover {
+            background: white;
+        }
+
+        .thumbnail-container {
+            display: flex;
+            padding: 15px;
+            gap: 10px;
+            overflow-x: auto;
+        }
+
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .thumbnail.active {
+            opacity: 1;
+            border: 2px solid var(--primary);
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Información del producto en catálogo */
+        .product-details {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 2rem;
+        }
+
+        .product-title {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+
+        .product-price-large {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .product-description-full {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .bulk-pricing {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .bulk-pricing h3 {
+            margin-bottom: 0.5rem;
+            color: var(--secondary);
+        }
+
+        .bulk-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .bulk-item:last-child {
+            border-bottom: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .price-row {
+                flex-direction: column;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .main-image {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                <span>Mi Catálogo</span>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn btn-secondary" id="viewProductsBtn">
+                    <i class="fas fa-list"></i> Ver Productos
+                </button>
+                <button class="btn btn-primary" id="addProductBtn">
+                    <i class="fas fa-plus"></i> Agregar Producto
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sección para agregar productos -->
+    <section class="section active" id="addProductSection">
+        <div class="container">
+            <h2 class="section-title">Agregar Nuevo Producto</h2>
+            
+            <div class="product-form">
+                <div class="form-group">
+                    <label for="productName">Nombre del Producto</label>
+                    <input type="text" id="productName" class="form-control" placeholder="Ej: Auriculares Inalámbricos Pro X">
+                </div>
+                
+                <div class="form-group">
+                    <label for="productCode">Código del Producto</label>
+                    <input type="text" id="productCode" class="form-control" placeholder="Ej: AUD-001">
+                </div>
+                
+                <div class="form-group">
+                    <label for="productDescription">Descripción del Producto</label>
+                    <textarea id="productDescription" class="form-control" rows="3" placeholder="Describe las características y beneficios del producto"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Imágenes del Producto (3 imágenes)</label>
+                    <div class="image-upload">
+                        <div class="upload-box" id="uploadBox1">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Imagen 1</span>
+                            <input type="file" id="image1" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="upload-box" id="uploadBox2">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Imagen 2</span>
+                            <input type="file" id="image2" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="upload-box" id="uploadBox3">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Imagen 3</span>
+                            <input type="file" id="image3" accept="image/*" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="price-row">
+                    <div class="form-group">
+                        <label for="retailPrice">Precio de Venta</label>
+                        <input type="number" id="retailPrice" class="form-control" placeholder="0.00" step="0.01">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="wholesalePrice">Precio al por Mayor</label>
+                        <input type="number" id="wholesalePrice" class="form-control" placeholder="0.00" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="whatsappNumber">Número de WhatsApp</label>
+                    <input type="text" id="whatsappNumber" class="form-control" placeholder="Ej: +1234567890">
+                </div>
+                
+                <button class="btn btn-primary" id="saveProductBtn" style="width: 100%;">
+                    <i class="fas fa-save"></i> Guardar Producto
+                </button>
+            </div>
+            
+            <div class="products-grid" id="productsList">
+                <!-- Los productos se agregarán aquí dinámicamente -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección para ver productos -->
+    <section class="section" id="viewProductsSection">
+        <div class="container">
+            <h2 class="section-title">Catálogo de Productos</h2>
+            
+            <div class="products-grid" id="catalogProducts">
+                <!-- Los productos del catálogo se mostrarán aquí -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Vista de catálogo individual -->
+    <section class="catalog-view" id="catalogView">
+        <div class="container">
+            <button class="back-button" id="backToProducts">
+                <i class="fas fa-arrow-left"></i> Volver al Catálogo
+            </button>
+            
+            <div class="main-content">
+                <!-- Galería de imágenes -->
+                <div class="product-gallery">
+                    <div class="main-image">
+                        <img id="mainImage" src="" alt="Producto principal">
+                        <div class="image-nav">
+                            <div class="nav-btn prev-btn">
+                                <i class="fas fa-chevron-left"></i>
+                            </div>
+                            <div class="nav-btn next-btn">
+                                <i class="fas fa-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thumbnail-container">
+                        <!-- Las miniaturas se agregarán aquí dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Información del producto -->
+                <div class="product-details">
+                    <h1 class="product-title" id="catalogProductName"></h1>
+                    <div class="product-code" id="catalogProductCode"></div>
+                    <div class="product-price-large" id="catalogProductPrice"></div>
+                    <p class="product-description-full" id="catalogProductDescription"></p>
+                    
+                    <div class="bulk-pricing">
+                        <h3>Precios al por Mayor</h3>
+                        <div class="bulk-item">
+                            <span>6 unidades</span>
+                            <span id="bulkPrice6"></span>
+                        </div>
+                        <div class="bulk-item">
+                            <span>12 unidades</span>
+                            <span id="bulkPrice12"></span>
+                        </div>
+                        <div class="bulk-item">
+                            <span>24 unidades</span>
+                            <span id="bulkPrice24"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="contactWhatsApp" style="flex: 2;">
+                            <i class="fab fa-whatsapp"></i> Contactar por WhatsApp
+                        </button>
+                        <button class="btn btn-secondary" id="downloadCatalog" style="flex: 1;">
+                            <i class="fas fa-download"></i> Descargar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Elementos del DOM
+        const addProductSection = document.getElementById('addProductSection');
+        const viewProductsSection = document.getElementById('viewProductsSection');
+        const catalogView = document.getElementById('catalogView');
+        const viewProductsBtn = document.getElementById('viewProductsBtn');
+        const addProductBtn = document.getElementById('addProductBtn');
+        const backToProducts = document.getElementById('backToProducts');
+        const productsList = document.getElementById('productsList');
+        const catalogProducts = document.getElementById('catalogProducts');
+        const saveProductBtn = document.getElementById('saveProductBtn');
+        
+        // Elementos del formulario
+        const productName = document.getElementById('productName');
+        const productCode = document.getElementById('productCode');
+        const productDescription = document.getElementById('productDescription');
+        const retailPrice = document.getElementById('retailPrice');
+        const wholesalePrice = document.getElementById('wholesalePrice');
+        const whatsappNumber = document.getElementById('whatsappNumber');
+        
+        // Elementos de carga de imágenes
+        const uploadBox1 = document.getElementById('uploadBox1');
+        const uploadBox2 = document.getElementById('uploadBox2');
+        const uploadBox3 = document.getElementById('uploadBox3');
+        const image1 = document.getElementById('image1');
+        const image2 = document.getElementById('image2');
+        const image3 = document.getElementById('image3');
+        
+        // Elementos de la vista de catálogo
+        const mainImage = document.getElementById('mainImage');
+        const catalogProductName = document.getElementById('catalogProductName');
+        const catalogProductCode = document.getElementById('catalogProductCode');
+        const catalogProductPrice = document.getElementById('catalogProductPrice');
+        const catalogProductDescription = document.getElementById('catalogProductDescription');
+        const contactWhatsApp = document.getElementById('contactWhatsApp');
+        const downloadCatalog = document.getElementById('downloadCatalog');
+        const bulkPrice6 = document.getElementById('bulkPrice6');
+        const bulkPrice12 = document.getElementById('bulkPrice12');
+        const bulkPrice24 = document.getElementById('bulkPrice24');
+        
+        // Variables de estado
+        let products = JSON.parse(localStorage.getItem('products')) || [];
+        let currentProduct = null;
+        let currentImageIndex = 0;
+        
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProducts();
+            renderCatalogProducts();
+            
+            // Configurar eventos de carga de imágenes
+            setupImageUpload(uploadBox1, image1);
+            setupImageUpload(uploadBox2, image2);
+            setupImageUpload(uploadBox3, image3);
+            
+            // Configurar navegación
+            viewProductsBtn.addEventListener('click', function() {
+                addProductSection.classList.remove('active');
+                viewProductsSection.classList.add('active');
+                catalogView.classList.remove('active');
+            });
+            
+            addProductBtn.addEventListener('click', function() {
+                viewProductsSection.classList.remove('active');
+                addProductSection.classList.add('active');
+                catalogView.classList.remove('active');
+            });
+            
+            backToProducts.addEventListener('click', function() {
+                catalogView.classList.remove('active');
+                viewProductsSection.classList.add('active');
+            });
+            
+            // Guardar producto
+            saveProductBtn.addEventListener('click', saveProduct);
+            
+            // Contactar por WhatsApp
+            contactWhatsApp.addEventListener('click', contactViaWhatsApp);
+            
+            // Descargar catálogo
+            downloadCatalog.addEventListener('click', downloadProductCatalog);
+        });
+        
+        // Configurar carga de imágenes
+        function setupImageUpload(uploadBox, fileInput) {
+            uploadBox.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        uploadBox.innerHTML = <img src="${e.target.result}" alt="Imagen del producto">;
+                    }
+                    
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+        }
+        
+        // Guardar producto
+        function saveProduct() {
+            // Validar formulario
+            if (!productName.value || !productCode.value || !retailPrice.value || !wholesalePrice.value) {
+                alert('Por favor, completa todos los campos obligatorios');
+                return;
+            }
+            
+            // Obtener imágenes
+            const images = [];
+            if (image1.files && image1.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    images.push(e.target.result);
+                    if (image2.files && image2.files[0]) {
+                        const reader2 = new FileReader();
+                        reader2.onload = function(e) {
+                            images.push(e.target.result);
+                            if (image3.files && image3.files[0]) {
+                                const reader3 = new FileReader();
+                                reader3.onload = function(e) {
+                                    images.push(e.target.result);
+                                    finishSavingProduct(images);
+                                };
+                                reader3.readAsDataURL(image3.files[0]);
+                            } else {
+                                finishSavingProduct(images);
+                            }
+                        };
+                        reader2.readAsDataURL(image2.files[0]);
+                    } else {
+                        finishSavingProduct(images);
+                    }
+                };
+                reader.readAsDataURL(image1.files[0]);
+            } else {
+                finishSavingProduct(images);
+            }
+        }
+        
+        function finishSavingProduct(images) {
+            // Crear objeto producto
+            const product = {
+                id: Date.now(),
+                name: productName.value,
+                code: productCode.value,
+                description: productDescription.value,
+                retailPrice: parseFloat(retailPrice.value),
+                wholesalePrice: parseFloat(wholesalePrice.value),
+                whatsapp: whatsappNumber.value,
+                images: images,
+                date: new Date().toISOString()
+            };
+            
+            // Agregar a la lista
+            products.push(product);
+            
+            // Guardar en localStorage
+            localStorage.setItem('products', JSON.stringify(products));
+            
+            // Actualizar la vista
+            renderProducts();
+            renderCatalogProducts();
+            
+            // Limpiar formulario
+            productName.value = '';
+            productCode.value = '';
+            productDescription.value = '';
+            retailPrice.value = '';
+            wholesalePrice.value = '';
+            whatsappNumber.value = '';
+            uploadBox1.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><span>Imagen 1</span>';
+            uploadBox2.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><span>Imagen 2</span>';
+            uploadBox3.innerHTML = '<i class="fas fa-cloud-upload-alt"></i><span>Imagen 3</span>';
+            image1.value = '';
+            image2.value = '';
+            image3.value = '';
+            
+            alert('Producto guardado correctamente');
+        }
+        
+        // Renderizar productos en la sección de administración
+        function renderProducts() {
+            productsList.innerHTML = '';
+            
+            if (products.length === 0) {
+                productsList.innerHTML = '<p style="text-align: center; width: 100%; padding: 2rem; color: var(--gray);">No hay productos agregados todavía</p>';
+                return;
+            }
+            
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <img src="${product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/300x200?text=Sin+imagen'}" alt="${product.name}">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-code">Código: ${product.code}</div>
+                        <div class="product-price">$${product.retailPrice.toFixed(2)}</div>
+                        <div class="product-description">${product.description || 'Sin descripción'}</div>
+                        <div class="product-actions">
+                            <button class="whatsapp-btn view-product-btn" data-id="${product.id}">
+                                <i class="fas fa-eye"></i> Ver
+                            </button>
+                            <button class="whatsapp-btn delete-product-btn" data-id="${product.id}">
+                                <i class="fas fa-trash"></i> Eliminar
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                productsList.appendChild(productCard);
+            });
+            
+            // Agregar event listeners a los botones
+            document.querySelectorAll('.view-product-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    viewProductInCatalog(productId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-product-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    deleteProduct(productId);
+                });
+            });
+        }
+        
+        // Renderizar productos en el catálogo
+        function renderCatalogProducts() {
+            catalogProducts.innerHTML = '';
+            
+            if (products.length === 0) {
+                catalogProducts.innerHTML = '<p style="text-align: center; width: 100%; padding: 2rem; color: var(--gray);">No hay productos en el catálogo</p>';
+                return;
+            }
+            
+            products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <img src="${product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/300x200?text=Sin+imagen'}" alt="${product.name}">
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-code">Código: ${product.code}</div>
+                        <div class="product-price">$${product.retailPrice.toFixed(2)}</div>
+                        <div class="product-description">${product.description || 'Sin descripción'}</div>
+                        <div class="product-actions">
+                            <button class="whatsapp-btn view-catalog-btn" data-id="${product.id}">
+                                <i class="fas fa-eye"></i> Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                catalogProducts.appendChild(productCard);
+            });
+            
+            // Agregar event listeners a los botones
+            document.querySelectorAll('.view-catalog-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    viewProductInCatalog(productId);
+                });
+            });
+        }
+        
+        // Ver producto en el catálogo
+        function viewProductInCatalog(productId) {
+            currentProduct = products.find(p => p.id === productId);
+            
+            if (!currentProduct) return;
+            
+            // Actualizar vista de catálogo
+            catalogProductName.textContent = currentProduct.name;
+            catalogProductCode.textContent = Código: ${currentProduct.code};
+            catalogProductPrice.textContent = $${currentProduct.retailPrice.toFixed(2)};
+            catalogProductDescription.textContent = currentProduct.description || 'Sin descripción';
+            
+            // Calcular precios al por mayor
+            const wholesalePrice = currentProduct.wholesalePrice;
+            bulkPrice6.textContent = $${(wholesalePrice * 6).toFixed(2)} ($${wholesalePrice.toFixed(2)} c/u);
+            bulkPrice12.textContent = $${(wholesalePrice * 12).toFixed(2)} ($${wholesalePrice.toFixed(2)} c/u);
+            bulkPrice24.textContent = $${(wholesalePrice * 24).toFixed(2)} ($${wholesalePrice.toFixed(2)} c/u);
+            
+            // Configurar galería de imágenes
+            setupProductGallery();
+            
+            // Mostrar vista de catálogo
+            addProductSection.classList.remove('active');
+            viewProductsSection.classList.remove('active');
+            catalogView.classList.add('active');
+        }
+        
+        // Configurar galería de imágenes del producto
+        function setupProductGallery() {
+            const thumbnailContainer = document.querySelector('.thumbnail-container');
+            thumbnailContainer.innerHTML = '';
+            
+            if (!currentProduct || currentProduct.images.length === 0) {
+                mainImage.src = 'https://via.placeholder.com/600x400?text=Sin+imagen';
+                return;
+            }
+            
+            // Establecer imagen principal
+            mainImage.src = currentProduct.images[0];
+            currentImageIndex = 0;
+            
+            // Crear miniaturas
+            currentProduct.images.forEach((image, index) => {
+                const thumbnail = document.createElement('div');
+                thumbnail.className = thumbnail ${index === 0 ? 'active' : ''};
+                thumbnail.innerHTML = <img src="${image}" alt="Miniatura ${index + 1}">;
+                
+                thumbnail.addEventListener('click', () => {
+                    updateMainImage(index);
+                });
+                
+                thumbnailContainer.appendChild(thumbnail);
+            });
+            
+            // Configurar navegación
+            document.querySelector('.prev-btn').addEventListener('click', () => {
+                let newIndex = currentImageIndex - 1;
+                if (newIndex < 0) newIndex = currentProduct.images.length - 1;
+                updateMainImage(newIndex);
+            });
+            
+            document.querySelector('.next-btn').addEventListener('click', () => {
+                let newIndex = currentImageIndex + 1;
+                if (newIndex >= currentProduct.images.length) newIndex = 0;
+                updateMainImage(newIndex);
+            });
+        }
+        
+        // Actualizar imagen principal
+        function updateMainImage(index) {
+            mainImage.src = currentProduct.images[index];
+            currentImageIndex = index;
+            
+            // Actualizar miniaturas activas
+            document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+                if (i === index) {
+                    thumb.classList.add('active');
+                } else {
+                    thumb.classList.remove('active');
+                }
+            });
+        }
+        
+        // Eliminar producto
+        function deleteProduct(productId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este producto?')) {
+                products = products.filter(p => p.id !== productId);
+                localStorage.setItem('products', JSON.stringify(products));
+                renderProducts();
+                renderCatalogProducts();
+            }
+        }
+        
+        // Contactar por WhatsApp
+        function contactViaWhatsApp() {
+            if (!currentProduct) return;
+            
+            const phone = currentProduct.whatsapp || '1234567890';
+            const message = ¡Hola! Estoy interesado en el producto: ${currentProduct.name} (Código: ${currentProduct.code}). Precio: $${currentProduct.retailPrice.toFixed(2)}. ¿Podrían darme más información?;
+            
+            const encodedMessage = encodeURIComponent(message);
+            window.open(https://wa.me/${phone}?text=${encodedMessage}, '_blank');
+        }
+        
+        // Descargar catálogo del producto
+        function downloadProductCatalog() {
+            if (!currentProduct) return;
+            
+            // Crear contenido HTML para el catálogo
+            const catalogHTML = `
+                <!DOCTYPE html>
+                <html lang="es">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>Catálogo - ${currentProduct.name}</title>
+                    <style>
+                        body {
+                            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            line-height: 1.6;
+                            color: #333;
+                            max-width: 800px;
+                            margin: 0 auto;
+                            padding: 20px;
+                        }
+                        .product-header {
+                            text-align: center;
+                            margin-bottom: 30px;
+                            border-bottom: 2px solid #4361ee;
+                            padding-bottom: 20px;
+                        }
+                        .product-name {
+                            font-size: 2rem;
+                            color: #3a0ca3;
+                            margin-bottom: 10px;
+                        }
+                        .product-code {
+                            color: #6c757d;
+                            font-size: 1.2rem;
+                        }
+                        .product-gallery {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 15px;
+                            margin-bottom: 30px;
+                            justify-content: center;
+                        }
+                        .product-gallery img {
+                            max-width: 100%;
+                            height: auto;
+                            border-radius: 8px;
+                            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                        }
+                        .product-details {
+                            margin-bottom: 30px;
+                        }
+                        .product-price {
+                            font-size: 1.8rem;
+                            color: #4361ee;
+                            font-weight: bold;
+                            margin-bottom: 15px;
+                        }
+                        .product-description {
+                            margin-bottom: 20px;
+                            line-height: 1.6;
+                        }
+                        .bulk-pricing {
+                            background: #f8f9fa;
+                            padding: 15px;
+                            border-radius: 8px;
+                            margin-top: 20px;
+                        }
+                        .bulk-pricing h3 {
+                            margin-top: 0;
+                            color: #3a0ca3;
+                        }
+                        .bulk-item {
+                            display: flex;
+                            justify-content: space-between;
+                            padding: 8px 0;
+                            border-bottom: 1px solid #e9ecef;
+                        }
+                        .bulk-item:last-child {
+                            border-bottom: none;
+                        }
+                        .contact-info {
+                            text-align: center;
+                            margin-top: 30px;
+                            padding-top: 20px;
+                            border-top: 1px solid #e9ecef;
+                        }
+                        .whatsapp-btn {
+                            display: inline-block;
+                            background: #25D366;
+                            color: white;
+                            padding: 10px 20px;
+                            border-radius: 50px;
+                            text-decoration: none;
+                            font-weight: bold;
+                            margin-top: 10px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="product-header">
+                        <h1 class="product-name">${currentProduct.name}</h1>
+                        <div class="product-code">Código: ${currentProduct.code}</div>
+                    </div>
+                    
+                    <div class="product-gallery">
+                        ${currentProduct.images.map(img => <img src="${img}" alt="${currentProduct.name}" style="max-width: 300px;">).join('')}
+                    </div>
+                    
+                    <div class="product-details">
+                        <div class="product-price">Precio: $${currentProduct.retailPrice.toFixed(2)}</div>
+                        
+                        <div class="product-description">
+                            ${currentProduct.description || 'Sin descripción disponible.'}
+                        </div>
+                        
+                        <div class="bulk-pricing">
+                            <h3>Precios al por Mayor</h3>
+                            <div class="bulk-item">
+                                <span>6 unidades</span>
+                                <span>$${(currentProduct.wholesalePrice * 6).toFixed(2)} ($${currentProduct.wholesalePrice.toFixed(2)} c/u)</span>
+                            </div>
+                            <div class="bulk-item">
+                                <span>12 unidades</span>
+                                <span>$${(currentProduct.wholesalePrice * 12).toFixed(2)} ($${currentProduct.wholesalePrice.toFixed(2)} c/u)</span>
+                            </div>
+                            <div class="bulk-item">
+                                <span>24 unidades</span>
+                                <span>$${(currentProduct.wholesalePrice * 24).toFixed(2)} ($${currentProduct.wholesalePrice.toFixed(2)} c/u)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-info">
+                        <p>¿Interesado en este producto?</p>
+                        <a href="https://wa.me/${currentProduct.whatsapp || '1234567890'}?text=¡Hola! Estoy interesado en el producto: ${currentProduct.name} (Código: ${currentProduct.code})" class="whatsapp-btn" target="_blank">
+                            Contactar por WhatsApp
+                        </a>
+                    </div>
+                </body>
+                </html>
+            `;
+            
+            // Crear y descargar el archivo
+            const blob = new Blob([catalogHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = catalogo-${currentProduct.code}.html;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

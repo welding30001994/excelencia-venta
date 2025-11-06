@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRUPOAMICIS - Catálogo de Productos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 100px; /* Para compensar el buscador fijo */
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+            text-decoration: none;
+        }
+
+        /* Buscador fijo */
+        .search-container {
+            margin-bottom: 30px;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(10, 10, 20, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(20, 20, 30, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #00ffff;
+            font-size: 20px;
+        }
+
+        /* Grid de productos */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .product-card {
+            background: rgba(20, 20, 30, 0.7);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            border-color: rgba(0, 255, 255, 0.3);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+            cursor: pointer;
+        }
+
+        .product-info {
+            padding: 15px;
+        }
+
+        .product-name {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .product-code {
+            color: #aaa;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .product-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ffff;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        /* Modal para imagen en pantalla completa */
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .image-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-image {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: #ff3366;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                gap: 15px;
+            }
+            
+            .container {
+                padding-top: 120px; /* Más espacio para el buscador en móviles */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="logo">GRUPOAMICIS</a>
+        </header>
+        
+        <div class="search-container">
+            <input type="text" class="search-box" id="searchBox" placeholder="Buscar por nombre o código de producto...">
+            <i class="fas fa-search search-icon"></i>
+        </div>
+        
+        <div class="products-grid" id="productsGrid">
+            <!-- Los productos se cargarán aquí dinámicamente -->
+        </div>
+    </div>
+    
+    <!-- Modal para imagen en pantalla completa -->
+    <div class="image-modal" id="imageModal">
+        <span class="close-modal" id="closeModal">&times;</span>
+        <img src="" alt="" class="modal-image" id="modalImage">
+    </div>
+
+    <script>
+        // Base de datos de productos
+        const products = [
+{
+    name: "Serie Fruit Cube",
+    code: "RFD357862",
+    price: 12.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD357862.jpeg",
+    page: "Serie-Fruit-Cube.html"
+},
+{
+    name: "Adorable Saving Box",
+    code: "HD3674",
+    price: 21.56,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3674.jpeg",
+    page: "Adorable-Saving-Box.html"
+},
+{
+    name: "Cartoon Car",
+    code: "RFD377037",
+    price: 14.63,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD377037.jpeg",
+    page: "Cartoon-Car.html"
+},
+{
+    name: "Night Lamp Fan",
+    code: "HD451",
+    price: 5.10,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD451.jpeg",
+    page: "Night-Lamp-Fan.html"
+},
+{
+    name: "Cutest Pets",
+    code: "RFD424679",
+    price: 16.76,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD424679.jpeg",
+    page: "Cutest-Pets.html"
+},
+{
+    name: " Rabbit Phone",
+    code: "RI550",
+    price: 5.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RI550.jpeg",
+    page: " Rabbit-Phone.html"
+},
+{
+    name: "Cartoon Saving Box Pand Alcancia",
+    code: "--",
+    price: 22.49,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/NO-CODE.jpeg",
+    page: "Cartoon-Saving-Box-Pand-Alcancia.html"
+},
+{
+    name: "Intelligent fingerptint Atm",
+    code: "HD3678",
+    price: 26.29,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3678.jpeg",
+    page: "Intelligent-fingerptint-Atm.html"
+},
+{
+    name: "Marine Animal Paddle",
+    code: "RFD432511",
+    price: 4.25,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD432511.jpeg",
+    page: "Marine-Animal-Paddle.html"
+},
+{
+    name: "Funmuch",
+    code: "RFD323616",
+    price: 4.10,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD323616.jpeg",
+    page: "Funmuch.html"
+},
+{
+    name: "Funmuch Cow",
+    code: "RFD323641",
+    price: 3.21,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD323641.jpeg",
+    page: "Funmuch-cow.html"
+},
+{
+    name: "Dino Puzzle",
+    code: "RFD415595",
+    price: 3.25,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD415595.jpeg",
+    page: "Dino-Puzzle.html"
+},
+{
+    name: "Colchoneta",
+    code: "HD3730",
+    price: 1.0,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3730.jpeg",
+    page: "Colchoneta.html"
+},
+{
+    name: "Eva Puzzle Mats",
+    code: "HD3731",
+    price: 0.65,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3731.jpeg",
+    page: "Eva-Puzzle-Mats.html"
+},
+{
+    name: "Intelligent Money Storage Machine",
+    code: " HD3673",
+    price: 22.10,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3673.jpeg",
+    page: "Intelligent-Money-Storage-Machine.html"
+},
+{
+    name: "Rosa Esponja Mochila",
+    code: "HD5312",
+    price: 2.38,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD5312.jpeg",
+    page: "Rosa-Esponja-Mochila.html"
+},
+{
+    name: "Fun Water Toys",
+    code: "RFD432514",
+    price: 6.0,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD432514.jpeg",
+    page: "Fun-Water-Toys.html"
+},
+{
+    name: "Juguete Reloj Ventilador",
+    code: " HD869 ",
+    price: 0.40,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD869.jpeg",
+    page: "Juguete-Reloj-Ventilador.html"
+},
+{
+    name: " Pizarra Drawing Board",
+    code: " HD3631",
+    price:  1.95,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3631.jpeg",
+    page: "Pizarra-Drawing-Board.html"
+},
+{
+    name: " Yase ventilador ",
+    code: "HD1744 ",
+    price: 5.0,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1744.jpeg",
+    page: "Yase-Ventilador.html"
+},
+{
+    name: "Cartoon Children Lunch Box",
+    code: "  HD4330",
+    price: 7.99,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD4330.jpeg",
+    page: "Cartoon-Children-Lunch-Box.html"
+},
+{
+    name: "Magic Forts Castle",
+    code: " RFD425908 ",
+    price: 24.25,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD425908.jpeg",
+    page: "Magic-Forts-Castle.html"
+},
+{
+    name: "Smart Pocket Macnetic Tiled Blocks Car Track",
+    code: "RFD85516",
+    price: 38.54,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD85516.jpeg",
+    page: "Smart-Pocket-Macnetic-Tiled-Blocks-Car-Track.html"
+},
+{
+    name: "Pistolas De Agua",
+    code: " RFD285525",
+    price: 1.23,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD285525.jpeg",
+    page: "Pistolas-De-Agua.html"
+},
+{
+    name: " Camara ",
+    code: " HD891",
+    price: 1.30,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD891.jpeg",
+    page: "Camara.html"
+},
+{
+    name: "Ventidor Cat",
+    code: "HD1751",
+    price: 8.21,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1751.jpeg",
+    page: "Ventidor-Cat.html"
+},
+{
+    name: " Mini Fan Buo ",
+    code: " HD1753",
+    price: 8.21,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1753.jpeg",
+    page: "Mini-Fan-Buo.html"
+},
+{
+    name: " San Valentín Peluche",
+    code: " HD939",
+    price: 8.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD939.jpeg",
+    page: "San-Valentín-Peluche.html"
+},
+{
+    name: " Baby Teether Rattle ",
+    code: " RFD388033 ",
+    price: 20.91 ,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD388033.jpeg",
+    page: "Baby-Teether-Rattle.html"
+},
+{
+    name: " Músical Mobile ",
+    code: " HD3459",
+    price: 28.24,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3459.jpeg",
+    page: "Músical-Mobile.html"
+},
+{
+    name: " Baby toys  ",
+    code: "RFD323654",
+    price: 2.40,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD323654.jpeg",
+    page: "Baby-Toys.html"
+},
+{
+    name: " Baby Toys Shake ",
+    code: " RFD323656",
+    price: 3.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD323656.jpeg",
+    page: "Baby-Toys-Shake.html"
+},
+{
+    name: " Baby Toys Cow ",
+    code: " RFD323616 ",
+    price: 6.10,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD323616.jpeg",
+    page: "Baby-Toys-Cow.html"
+},
+{
+    name: " Mini Fan Ventilador Conejo",
+    code: "HD1742 ",
+    price: 9.75 ,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1742.jpeg",
+    page: "Mini-Fan-Ventilador-Conejo.html"
+},
+{
+    name: " Smart Pocket Little Cute Car ",
+    code: " RFD356325 ",
+    price: 8.10 ,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD356325.jpeg",
+    page: "Smart-Pocket-Little-Cute-Car.html"
+},
+{
+    name: " Cute Rattle ",
+    code: " RFD406066",
+    price: 8.33,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD406066.jpeg",
+    page: "Cute-Rattle.html"
+},
+{
+    name: " Sunshine Baby ",
+    code: " RFD406065",
+    price: 8.75,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD406065.jpeg",
+    page: "Sunshine-Baby.html"
+},
+{
+    name: " Smart Sensor Car Wireless Charger",
+    code: " HD3708 ",
+    price: 26.90 ,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3708.jpeg",
+    page: "Smart-Sensor-Car-Wireless-Charger.html"
+},
+{
+    name: "  Happy Shaking Bell ",
+    code: " HD3460 ",
+    price: 27.72,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3460.jpeg",
+    page: "Happy-Shaking-Bell.html"
+},
+{
+    name: " Portable Chinese Checkers ",
+    code: " RFD251344 ",
+    price: 1.75,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD251344.jpeg",
+    page: "Portable-Chinese-Checkers.html"
+},
+{
+    name: " Reloj Clock ",
+    code: " HD832",
+    price: 2.57 ,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD832.jpeg",
+    page: "Reloj-Clock.html"
+},
+{
+    name: " Reloj Juego Del Calamar ",
+    code: " 6930178228101 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/6930178228101.jpeg",
+    page: "Reloj-Juego-Del-Calamar.html"
+},
+{
+    name: " Brocha-Guchi ",
+    code: " HD636",
+    price: 2.05,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD636.jpeg",
+    page: "Brocha-Guchi.html"
+},
+{
+    name: " Smart Pocket Stacking Rings Toy",
+    code: " RFD356347 ",
+    price: 16.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD356347.jpeg",
+    page: "Smart-Pocket-Stacking-Rings-Toy.html"
+},
+{
+    name: " Soft Building Blocks",
+    code: "- ",
+    price: 7.4,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/NO-CODE.jpeg",
+    page: "Soft-Building-Blocks.html"
+},
+{
+    name: " Baby Training Ball",
+    code: " RFD338566",
+    price:  6.21,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD338566.jpeg",
+    page: "Baby-Training-Ball.html"
+},
+{
+    name: " Tecla Música ",
+    code: "",
+    price: 3.80 ,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/NO-CODE.jpeg",
+    page: "Tecla-Música.html"
+},
+{
+    name: " 11 MAX ANILLO CARCASA   ",
+    code: " HD1311  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1311.jpeg",
+    page: "11-MAX-ANILLO-CARCASA.html"
+},
+{
+    name: " 11 MAX ANILLO_CARCASA  ",
+    code: " HD1403  ",
+    price:  2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1403.jpeg",
+    page: "11-MAX-ANILLO-CARCASA-HD1403.html"
+},
+{
+    name: " 11 MAX CORAZON CARCASA ",
+    code: "  HD1144 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1144.jpeg",
+    page: "11-MAX-CORAZON-CARCASA-HD1144.html"
+},
+{
+    name: " 11 MAX PERLAS CARCASA  ",
+    code: " HD1356   ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1356.jpeg",
+    page: "11-MAX-PERLAS-CARCASA-HD1356.html"
+},
+{
+    name: " 11 MAX PROTECTOR CARCASA  ",
+    code: " HD1128  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1128.jpeg",
+    page: "11-MAX-PROTECTOR-CARCASA-HD1128.html"
+},
+{
+    name: " 6 PLUS AMOR CARCASA ",
+    code: " HD1453  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1453.jpeg",
+    page: "6-PLUS-AMOR-CARCASA-HD1453.html"
+},
+{
+    name: "  6 PLUS ANILLO CARCASA ",
+    code: " HD1301  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1301.jpeg",
+    page: "6-PLUS-ANILLO-CARCASA-HD1301.html"
+},
+{
+    name: " 6 PLUS CORAZONCARCASA  ",
+    code: " HD1135  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1135.jpeg",
+    page: "6-PLUS-CORAZON-CARCASA-HD1135.html"
+},
+{
+    name: " 6 PLUS LAZO CARCASA ",
+    code: " HD1371  ",
+    price: 0.0,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1371.jpeg",
+    page: "6-PLUS-LAZO-CARCASA-HD1371.html"
+},
+{
+    name: " 6 PLUS MATIZADO_CARCASA  ",
+    code: " HD1207  ",
+    price: 2.00 ,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1207.jpeg",
+    page: "6-PLUS-MATIZADO-CARCASA-HD1207.html"
+},
+{
+    name: "  6 PLUS PERLAS_CARCASA  ",
+    code: "  HD1367 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1367.jpeg",
+    page: "6- PLUS-PERLAS-CARCASA-HD1367.html"
+},
+{
+    name: "6 PLUS PROTECTOR CARCASA ",
+    code: " HD1118 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1118.jpeg",
+    page: "6-PLUS-PROTECTOR-CARCASA-HD1118.html"
+},
+{
+    name: " 6 PLUS STAR CARCASA ",
+    code: " HD1394   ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1394.jpeg",
+    page: " 6-PLUS-STAR-CARCASA-HD1394.html"
+},
+{
+    name: " 6 PLUS SUPREME CARCASA  ",
+    code: " HD1253   ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1253.jpeg",
+    page: "6-PLUS-SUPREME-CARCASA-HD1253.html"
+},
+{
+    name: "  668-17 GYM BABY 05/2021 ",
+    code: " HD3108  ",
+    price: 30.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3108.jpeg",
+    page: "668-17-GYM-BABY-05/2021-HD3108.html"
+},
+{
+    name: " 7 PLUS AMOR_CARCASA ",
+    code: " HD1455  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1455.jpeg",
+    page: "7-PLUS-AMOR-CARCASA-HD1455.html"
+},
+{
+    name: "  7 PLUS ANILLO CARCASA ",
+    code: " HD1304  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1304.jpeg",
+    page: "7-PLUS-ANILLO-CARCASA-HD1304.html"
+},
+{
+    name: " 7 PLUS CORAZON CARCASA ",
+    code: " HD1137  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1137.jpeg",
+    page: "7-PLUS-CORAZON-CARCASA-HD1137.html"
+},
+{
+    name: " 7 PLUS PROTECTOR CARCASA ",
+    code: " HD1120  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1120.jpeg",
+    page: "7-PLUS-PROTECTOR-CARCASA-HD1120.html"
+},
+{
+    name: " 7 PLUS SUPREME CARCASA  ",
+    code: "   HD1255 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1255.jpeg",
+    page: "7-PLUS-SUPREME-CARCASA-HD1255.html"
+},
+{
+    name: " 8 BLUS MATIZADO_CARCASA ",
+    code: " HD1211  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1211.jpeg",
+    page: "8-BLUS-MATIZADO-CARCASA-HD1211.html"
+},
+{
+    name: " 8-PLUS-AMOR-CARCASA  ",
+    code: "  HD1457 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1457.jpeg",
+    page: "8-PLUS-AMOR-CARCASA-HD1457-.html"
+},
+{
+    name: " 8 PLUS CORAZON CARCASA  ",
+    code: " HD1139 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1139.jpeg",
+    page: "8-PLUS-CORAZON-CARCASA-HD1139.html"
+},
+{
+    name: "  8 PLUS LAZO_CARCASA ",
+    code: " HD1375  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1375.jpeg",
+    page: "8-PLUS-LAZO-CARCASA-HD1375.html"
+},
+{
+    name: "8 PLUS PERLAS CARCASA  ",
+    code: " HD1351  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1351.jpeg",
+    page: "8-PLUS-PERLAS-CARCASA.html"
+},
+{
+    name: "  8 PLUS PROTECTOR CARCASA  ",
+    code: "  HD1123 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1123.jpeg",
+    page: "8-PLUS-PROTECTOR-CARCASA-HD1123.html"
+},
+{
+    name: " 8 PLUS STAR CARCASA  ",
+    code: "  HD1398 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1398.jpeg",
+    page: "8-PLUS-STAR-CARCASA-HD1398.html"
+},
+{
+    name: " 8 PLUS SUPREME CARCASA ",
+    code: " HD1257 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1257.jpeg",
+    page: "8-PLUS-SUPREME-CARCASA-HD1257.html"
+},
+{
+    name: " 8 PERLAS CARCASA HD1306 ",
+    code: " HD1306 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD1306.jpeg",
+    page: "8-PERLAS-CARCASA-HD1306.html"
+},
+{
+    name: " ACCESORIO BEBE AM ",
+    code: " HD3115  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3115.jpeg",
+    page: "ACCESORIO-BEBE-AM-HD3115.html"
+},
+{
+    name: " ADACTADOR HD 3/1 ",
+    code: " HD3699 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3699.jpeg",
+    page: "ADACTADOR-HD-3/1-HD3699.html"
+},
+{
+    name: " ADACTADOR HD IPHONE  ",
+    code: " HD3700  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3700.jpeg",
+    page: "ADACTADOR-HD-IPHONE-HD3700.html"
+},
+{
+    name: "  ADACTADOR HD TC054 ",
+    code: " HD3698 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3698.jpeg",
+    page: "ADACTADOR HD-TC054-HD3698 .html"
+},
+{
+    name: " ADACTADOR HD TYPE-C JH-030   ",
+    code: "   HD3702  ",
+    price: 4.0,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3702.jpeg",
+    page: "ADACTADOR-HD-TYPE-C-JH-030.html"
+},
+{
+    name: " ADACTADOR HD ",
+    code: " HD3705  ",
+    price: 4.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3705.jpeg",
+    page: "ADACTADOR-HD.html"
+},
+{
+    name: "ADAPTADOR TYPE-C HD  ",
+    code: " HD3692 ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3692.jpeg",
+    page: "ADAPTADOR-TYPE-C-HD.html"
+},
+{
+    name: " ADAPTADOR TYPE-C HD ",
+    code: "  HD3693 ",
+    price: 3.08,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3693.jpeg",
+    page: "ADAPTADOR-TYPE-C-HD.html"
+},
+{
+    name: "  ATOMISADOR X2 HD ",
+    code: " HD4044  ",
+    price: 1.09,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD4044.jpeg",
+    page: "ATOMISADOR-X2-HD.html"
+},
+{
+    name: " BILLETERA PARA MONEDA L67 ",
+    code: " HD409   ",
+    price: 2.50,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD409.jpeg",
+    page: "BILLETERA-PARA-MONEDA-L67.html"
+},
+{
+    name: " BLANCO MASAJEADOR CHINA ",
+    code: " HD3300  ",
+    price: 18.50,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3300.jpeg",
+    page: "BLANCO-MASAJEADOR-CHINA.html"
+},
+{
+    name: "BM6018-1 CAMINADOR + MICROFONO BABY  ",
+    code: " HD3111  ",
+    price: 20.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3111.jpeg",
+    page: "BM6018-1-CAMINADOR-MICROFONO-BABY.html"
+},
+{
+    name: " CALCULADORA HD ",
+    code: "  HD4249 ",
+    price: 6.50,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD4249.jpeg",
+    page: "CALCULADORA-HD.html"
+},
+{
+    name: " CALCULADORA HD ",
+    code: "  HD4250 ",
+    price: 5.50,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD4250.jpeg",
+    page: "CALCULADORA-HD.html"
+},
+{
+    name: "  CAMPANA YE-35 HD X3 ",
+    code: " HD3465  ",
+    price: 2.25,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3465.jpeg",
+    page: "CAMPANA-YE-35-HD-X3.html"
+},
+{
+    name: " CARTOON CHILDREN JUGUETES ",
+    code: "  RFD418236 ",
+    price: 15.50,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD418236.jpeg",
+    page: "CARTOON-CHILDREN-JUGUETES.html"
+},
+{
+    name: " CEPILLO DE DIENTE ELECTRICO 05/2021 ",
+    code: " HD3314   ",
+    price: 7.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3314.jpeg",
+    page: "CEPILLO-DE-DIENTE-ELECTRICO-05/2021.html"
+},
+{
+    name: "  CEPILLO DE LABIOS AKIO ",
+    code: " HD597   ",
+    price: 1.54,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD597.jpeg",
+    page: "CEPILLO-DE-LABIOS-AKIO.html"
+},
+{
+    name: " CEPILLO FACIAL ",
+    code: " 4010355307736  ",
+    price: 2.578,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/4010355307736.jpeg",
+    page: "CEPILLO-FACIAL.html"
+},
+{
+    name: " CEPILLO PARA PIE HD  ",
+    code: " HD4105  ",
+    price: 1.28 ,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD4105.jpeg",
+    page: " CEPILLO-PARA-PIE-HD.html"
+},
+{
+    name: "  CHICKEN ELECTRIC JUGUETES ",
+    code: " RFD397384  ",
+    price: 10.35,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/RFD397384.jpeg",
+    page: "CHICKEN-ELECTRIC-JUGUETES.html"
+},
+{
+    name: " CLIP DE CEJAS ",
+    code: " 6927433612256  ",
+    price: 2.57,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/6927433612256.jpeg",
+    page: "CLIP-DE-CEJAS.html"
+},
+{
+    name: " CLIP DE CEJAS. ",
+    code: " 6931388597582  ",
+    price: 0.82 ,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/6931388597582.jpeg",
+    page: "CLIP-DE-CEJAS-6931388597582.html"
+},
+{
+    name: "  COMICS-VARI-CARCASA ",
+    code: " HD2464  ",
+    price: 2.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD2464.jpeg",
+    page: "COMICS-VARI-CARCASA.html"
+},
+{
+    name: " CORTA UÑAS  ",
+    code: " HD4035  ",
+    price: 1.99,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD4035.jpeg",
+    page: "CORTA-UÑAS.html"
+},
+{
+    name: " CORTA UÑAS ",
+    code: " HD606  ",
+    price: 0.82 ,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD606.jpeg",
+    page: "CORTA-UÑAS.html"
+},
+{
+    name: " CUCHILLA 836 HD NAVAJA 2022/02   ",
+    code: " HD4128  ",
+    price: 5.02,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD4128.jpeg",
+    page: "CUCHILLA-836-HD-NAVAJA-2022/02.html"
+},
+{
+    name: "  CUCHILLO HD K-75 2022/02 ",
+    code: "  HD4118  ",
+    price: 5.28,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD4118.jpeg",
+    page: "CUCHILLO-HD-K-75-2022/02.html"
+},
+{
+    name: "  DIADEMA BANDA ELASTICA BABY ",
+    code: " HD2425  ",
+    price: 2.50,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD2425.jpeg",
+    page: "DIADEMA-BANDA-ELASTICA-BABY.html"
+},
+{
+    name: " DIADEMA CORONA DE FLORES ",
+    code: "  HD875 ",
+    price: 0.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD875.jpeg",
+    page: "DIADEMA-CORONA-DE-FLORES.html"
+},
+{
+    name: " DIFUSOR FACIAL HD  ",
+    code: "  HD3689 ",
+    price: 3.00,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD3689.jpeg",
+    page: "DIFUSOR-FACIAL-HD.html"
+},
+{
+    name: " ESPEJO CON CARGADOR LED COSMETIC  ",
+    code: " HD2201  ",
+    price: 10.27,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD2201.jpeg",
+    page: "ESPEJO-CON-CARGADOR-LED-COSMETIC.html"
+},
+{
+    name: " ESPONJA ",
+    code: "  HD616 ",
+    price:  1.03,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD616.jpeg",
+    page: "ESPONJA.html"
+},
+{
+    name: "  ESPONJA ",
+    code: " HD631  ",
+    price: 1.03,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD631.jpeg",
+    page: "ESPONJA.html"
+},
+{
+    name: " ESPONJA 2PZ CORAZONES  ",
+    code: " HD2401  ",
+    price: 1.54,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD2401.jpeg",
+    page: "ESPONJA-2PZ-CORAZONES.html"
+},
+{
+    name: " ESPONJA BOUQUET OF JASMINE ",
+    code: " HD630  ",
+    price: 0.82,
+    image: "https://raw.githubusercontent.com/welding30001994/excelencia-oficial/refs/heads/main/catalogo/HD630.jpeg",
+    page: "ESPONJA-BOUQUET-OF-JASMINE.html"
+}
+        ];
+
+        // Variables globales
+        let filteredProducts = [...products];
+
+        // Elementos del DOM
+        const productsGrid = document.getElementById('productsGrid');
+        const searchBox = document.getElementById('searchBox');
+        const imageModal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const closeModal = document.getElementById('closeModal');
+
+        // Funciones
+        function renderProducts() {
+            productsGrid.innerHTML = '';
+            
+            filteredProducts.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                
+                productCard.innerHTML = `
+                    <div class="product-image" style="background-image: url('${product.image}')" data-image="${product.image}"></div>
+                    <div class="product-info">
+                        <h3 class="product-name" data-page="${product.page}">${product.name}</h3>
+                        <p class="product-code">Código: ${product.code}</p>
+                        <div class="product-price">$${product.price.toFixed(2)}</div>
+                    </div>
+                `;
+                
+                productsGrid.appendChild(productCard);
+                
+                // Event listener para la imagen (abrir modal)
+                const productImage = productCard.querySelector('.product-image');
+                productImage.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    openImageModal(product.image);
+                });
+                
+                // Event listener para el nombre (navegar a la página)
+                const productName = productCard.querySelector('.product-name');
+                productName.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.href = product.page;
+                });
+            });
+        }
+
+        function filterProducts() {
+            const searchTerm = searchBox.value.toLowerCase();
+            
+            if (searchTerm === '') {
+                filteredProducts = [...products];
+            } else {
+                filteredProducts = products.filter(product => 
+                    product.name.toLowerCase().includes(searchTerm) || 
+                    product.code.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            renderProducts();
+        }
+
+        function openImageModal(imageSrc) {
+            modalImage.src = imageSrc;
+            imageModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeImageModal() {
+            imageModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Event listeners
+        searchBox.addEventListener('input', filterProducts);
+        
+        closeModal.addEventListener('click', closeImageModal);
+        
+        imageModal.addEventListener('click', (e) => {
+            if (e.target === imageModal) {
+                closeImageModal();
+            }
+        });
+
+        // Cerrar modal con tecla Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeImageModal();
+            }
+        });
+
+        // Inicializar
+        renderProducts();
+    </script>
+</body>
+</html>
+
+
